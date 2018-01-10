@@ -151,10 +151,10 @@ class AVLNode(object):
         return self.left is None and self.right is None
 
     def is_balanced(self):
-        return height(self.left) == height(self.right)
+        return self.get_balance_factor() == 0
 
     def get_balance_factor(self):
-        height(self.left) - height(self.right)
+        return height(self.right) - height(self.left)
 
     def is_right_child(self):
         return self.parent.right is not None and self.parent.right is self
@@ -162,15 +162,18 @@ class AVLNode(object):
     def is_left_child(self):
         return self.parent.left is not None and self.parent.left is self
 
+    def is_external_node(self):
+        return self.left is None or self.right is None
+
     def get_external_nodes(self):
-        leaves = set()
+        nodes = set()
         if self.left is not None:
-            leaves.update(self.left.get_external_nodes())
+            nodes.update(self.left.get_external_nodes())
         if self.right is not None:
-            leaves.update(self.right.get_external_nodes())
-        if self.is_leaf():
-            leaves.add(self)
-        return leaves
+            nodes.update(self.right.get_external_nodes())
+        if self.is_external_node():
+            nodes.add(self)
+        return nodes
 
 def height(node):
     if node is None:
@@ -321,9 +324,16 @@ class AVL(object):
         ## which is the first potentially out-of-balance node.
         self.rebalance(deleted.parent)
 
-    def get_external_nodes(self) -> [AVLNode]:
+    def get_external_nodes(self) -> set:
         return self.root.get_external_nodes()
 
+    def get_path_to_unbalanced_from_node(self, node):
+        path = []
+        current = node
+        while current is not self.root or not current.is_balanced():
+            path.append(current)
+            current = current.parent
+        return path
 
 def test(args=None):
     import random, sys

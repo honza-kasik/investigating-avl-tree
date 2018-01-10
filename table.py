@@ -6,12 +6,12 @@ avl_tree = AVL()
 
 numbers = list(range(100, 2001))
 random.shuffle(numbers)
-numbers = numbers[:1000]
+numbers = numbers[:100]
 for n in numbers:
     avl_tree.insert(n)
 
 print(avl_tree)
-#print(list(map(str, avl_tree.get_external_nodes())))
+print(list(map(str, avl_tree.get_external_nodes())))
 
 rotation_not_needed = defaultdict(lambda: 0, key="some_value")
 double_rotation_needed = defaultdict(lambda: 0, key="some_value")
@@ -24,6 +24,11 @@ for node in external_nodes:
     current = node
     walk = []
     is_rotation_needed = False
+    # imaginary additional node
+    if not current.is_leaf() and current.left is None:
+        walk.append(0)
+    else:
+        walk.append(1)
     while current.is_balanced() and current is not avl_tree.root:
         if current.is_right_child():
             walk.append(1)
@@ -33,8 +38,10 @@ for node in external_nodes:
 
     height_left = height(current.left)
     height_right = height(current.right)
+    print(walk)
+    print(str(current.key))
     last_turn = walk[-1]
-    if (abs((height_left + 1) - height_right) == 2 and last_turn == 0) or (abs(height_left - (height_right + 1)) == 2 and last_turn == 1):
+    if (current.get_balance_factor() < 0 and last_turn == 0) or (current.get_balance_factor() > 0 and last_turn == 1):
         is_rotation_needed = True
 
     path_length = len(walk)
