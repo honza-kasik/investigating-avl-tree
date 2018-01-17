@@ -179,11 +179,11 @@ def height(node):
     if node is None:
         return -1
     else:
-        return node.height
+        return max(height(node.left), height(node.right)) + 1
 
 
 def update_height(node):
-    node.height = max(height(node.left), height(node.right)) + 1
+    pass #TODO - remove
 
 
 class AVL(object):
