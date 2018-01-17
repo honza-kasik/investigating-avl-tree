@@ -1,8 +1,14 @@
 from AVLTree import AVL
 from AVLTree import AVLNode
-from AVLTree import height, update_height
+from AVLTree import update_height
 from TableData import TableData
 import copy
+
+def height(node: AVLNode):
+    if node is None or node.is_leaf():
+        return 0
+    else:
+        return max(height(node.left), height(node.right)) + 1
 
 class EvaluatedPath:
 
@@ -85,17 +91,19 @@ class Table:
         print(height(current_root.left))
         print(height(current_root.right))
         print(height(current_root))
-        # if (is_left_subtree and abs((height(current_root.left) + 1) - height(current_root.right)) >= 2) or\
-        #    (is_right_subtree and abs((height(current_root.right) + 1) - height(current_root.left)) >= 2):
+        if (is_left_subtree and height(current_root.left) - (height(current_root.right) - 1) >= 2) or\
+           (is_right_subtree and height(current_root.right) - (height(current_root.left) - 1) >= 2):
+            is_balanced = False
+        # if (is_left_subtree and abs(current_root.get_balance_factor() - 1) > 1) or\
+        #    (is_right_subtree and abs(current_root.get_balance_factor() + 1) > 1):
         #     is_balanced = False #TODO - is balanced after adding node?
-        if (is_left_subtree and abs(current_root.get_balance_factor() - 1) > 1) or\
-           (is_right_subtree and abs(current_root.get_balance_factor() + 1) > 1):
-            is_balanced = False #TODO - is balanced after adding node?
         return EvaluatedPath(ev_path = ev_path, is_balanced = is_balanced)
 
     def _retrieve_data_from_evaluated_path(self, ev_path: EvaluatedPath) -> None:
         if ev_path.is_balanced():
+            print("No rotation for " + str(ev_path.get_path_length()))
             self._data.new_no_rotation_event(ev_path.get_path_length())
+            print(self._data.get_no_rotation_events(1))
         else:
             last_two = ev_path.get_ev_path()[-2:]
             if '-' in last_two and '+' in last_two:
@@ -109,8 +117,8 @@ class Table:
         divisor = len(self._new_child_nodes)
         print("{:^15} | {:^5} | {:^5} | {:^5}".format("path length", "N_R", "S_R", "D_R"))
         print("---------------------------------------")
-        for i in range(threshold):
-            print(template.format(str(i + 1), self._data.get_no_rotation_events(i) / divisor,
+        for i in range(1, threshold + 1):
+            print(template.format(str(i), self._data.get_no_rotation_events(i) / divisor,
                                       self._data.get_single_rotation_events(i) / divisor,
                                       self._data.get_double_rotation_events(i) / divisor))
         print(template.format(">" + str(threshold), self._data.get_accumulated_no_rotations_above_threshold(threshold) / divisor,
