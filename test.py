@@ -4,6 +4,7 @@ import random
 
 avl_tree = AVL()
 
+# Insert 1000 numbers to tree between 100 and 2000 (inclusive)
 numbers = list(range(100, 2001))
 random.shuffle(numbers)
 numbers = numbers[:1000]

@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class TableData:
 
     _threshold = 5
@@ -9,6 +8,7 @@ class TableData:
     _double_rotations = 2
 
     def __init__(self):
+        #TODO - parametrize backing array creation, or use dynamic way to save data
         self._data = np.zeros((20, 3))
 
     def new_single_rotation_event(self, path_length):

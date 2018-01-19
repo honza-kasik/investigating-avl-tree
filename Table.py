@@ -1,13 +1,13 @@
-from AVLTree import AVL
-from AVLTree import AVLNode
+from AVLTree import AVL, AVLNode, height
 from TableData import TableData
 import copy
+import logging
 
-def height(node: AVLNode):
-    if node is None:
-        return -1
-    else:
-        return max(height(node.left), height(node.right)) + 1
+logger = logging.getLogger('table')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.ERROR)
+logger.addHandler(ch)
 
 class EvaluatedPath:
 
@@ -28,23 +28,26 @@ class EvaluatedPath:
         return len(self._ev_path)
 
 class Table:
+    """This class represents abstraction over obtaining data from existing tree to investigate behavior of the insertion
+    and rebalancing phases of algorithms used in AVL tree"""
 
     def __init__(self, tree: AVL):
+        #TODO - this doesn't look nice enough...
         self._tree = copy.deepcopy(tree)
         self._external_nodes = self._tree.get_external_nodes()
         self._data = TableData()
         self._new_child_nodes = self._edit_tree_to_contain_new_nodes()
-        print(self._tree)
         node_paths = map(lambda node: self._get_path_to_unbalanced_or_root_from_external(node), self._new_child_nodes)
-        print(list(map(str, map(lambda x: x.parent.key, self._new_child_nodes))))
+        logger.debug(list(map(str, map(lambda x: x.parent.key, self._new_child_nodes))))
         self._tree = tree
         for node_path in node_paths:
-            print(list(map(str, map(lambda x: x.key, node_path + [node_path[-1].parent]))))
+            logger.debug(list(map(str, map(lambda x: x.key, node_path + [node_path[-1].parent]))))
             ev_path = self._evaluate_path(node_path)
-            print(ev_path)
+            logger.debug(ev_path)
             self._retrieve_data_from_evaluated_path(ev_path)
 
     def _edit_tree_to_contain_new_nodes(self) -> [AVLNode]:
+        """Fills places for children in all external nodes - nodes which have none or only one child"""
         new_child_nodes = []
         for node in self._external_nodes:
             if node.left is None:
@@ -83,6 +86,7 @@ class Table:
         return EvaluatedPath(ev_path = ev_path, is_balanced = is_balanced)
 
     def _retrieve_data_from_evaluated_path(self, ev_path: EvaluatedPath) -> None:
+        """Parse evaluated path and save data for given path length"""
         if ev_path.is_balanced():
             self._data.new_no_rotation_event(ev_path.get_path_length())
         else:
@@ -93,10 +97,11 @@ class Table:
                 self._data.new_single_rotation_event(ev_path.get_path_length())
 
     def print_table(self) -> None:
+        """Print table containing data about relationship between path length to closest unbalanced node and if and
+        which rotation has to be taken"""
         template = "{:^15} | {:^03.3f} | {:^03.3f} | {:^03.3f}"
         threshold = 5
         divisor = len(self._new_child_nodes)
-        print(len(self._new_child_nodes))
         print("{:^15} | {:^5} | {:^5} | {:^5}".format("path length", "N_R", "S_R", "D_R"))
         print("---------------------------------------")
         for i in range(1, threshold + 1):

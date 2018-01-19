@@ -12,6 +12,11 @@ https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-006-in
 
 https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-006-introduction-to-algorithms-fall-2011/lecture-videos/lecture-6-avl-trees-avl-sort/
 
+
+WARNING! Monsters ahead: Do not use this in production! This class was edited by me (honza-kasik). The main edited part
+is the height function which doesn't use caching in nodes itselves anymore. Instead, it counts the height in recursive
+way from top to bottom, dynamically. This change was made to ensure up-to-date data when filling empty places in
+external nodes.
 """
 
 
